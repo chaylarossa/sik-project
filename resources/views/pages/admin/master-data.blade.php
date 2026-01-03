@@ -21,6 +21,17 @@
                 </div>
                 <span class="text-indigo-600">&rarr;</span>
             </a>
+
+            <a
+                href="{{ route('admin.urgency-levels.index') }}"
+                class="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 text-left transition hover:border-indigo-200 hover:bg-indigo-50"
+            >
+                <div>
+                    <div class="text-sm font-semibold text-gray-900">Tingkat Urgensi</div>
+                    <div class="text-xs text-gray-600">Kelola prioritas dan alert urgensi.</div>
+                </div>
+                <span class="text-indigo-600">&rarr;</span>
+            </a>
         </div>
     </div>
 </x-app-layout>

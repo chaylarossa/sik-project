@@ -2,6 +2,7 @@
 
 use App\Enums\PermissionName;
 use App\Http\Controllers\Admin\CrisisTypeController;
+use App\Http\Controllers\Admin\UrgencyLevelController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -44,6 +45,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->group(function () {
             Route::view('/master-data', 'pages.admin.master-data')->name('master-data');
             Route::resource('crisis-types', CrisisTypeController::class)->except(['show']);
+            Route::resource('urgency-levels', UrgencyLevelController::class)->except(['show']);
         });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
