@@ -8,14 +8,38 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified', 'permission:'.PermissionName::ViewDashboard->value])->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::view('/dashboard', 'dashboard')
+        ->middleware('permission:'.PermissionName::ViewDashboard->value)
+        ->name('dashboard');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/admin/master-data', function () {
-        return 'Master Data';
-    })->middleware('permission:'.PermissionName::ManageMasterData->value)->name('admin.master-data');
+    Route::view('/reports', 'pages.reports.index')
+        ->middleware('permission:'.implode('|', [
+            PermissionName::ViewReport->value,
+            PermissionName::CreateReport->value,
+            PermissionName::EditReport->value,
+        ]))
+        ->name('reports.index');
+
+    Route::view('/verifications', 'pages.verifications.index')
+        ->middleware('permission:'.PermissionName::VerifyReport->value)
+        ->name('verifications.index');
+
+    Route::view('/handling', 'pages.handling.index')
+        ->middleware('permission:'.PermissionName::ManageHandling->value)
+        ->name('handling.index');
+
+    Route::view('/archive', 'pages.archive.index')
+        ->middleware('permission:'.PermissionName::ExportData->value)
+        ->name('archive.index');
+
+    Route::view('/audit-log', 'pages.audit.index')
+        ->middleware('permission:'.PermissionName::ViewAuditLog->value)
+        ->name('audit-log.index');
+
+    Route::view('/admin/master-data', 'pages.admin.master-data')
+        ->middleware('permission:'.PermissionName::ManageMasterData->value)
+        ->name('admin.master-data');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
