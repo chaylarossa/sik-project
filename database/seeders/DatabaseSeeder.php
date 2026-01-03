@@ -20,14 +20,39 @@ class DatabaseSeeder extends Seeder
             RbacSeeder::class,
         ]);
 
-        $admin = User::firstOrCreate(
-            ['email' => 'admin@example.com'],
+        $users = [
             [
                 'name' => 'Administrator',
-                'password' => 'password',
-            ]
-        );
+                'email' => 'admin@example.com',
+                'role' => RoleName::Administrator,
+            ],
+            [
+                'name' => 'Operator Lapangan',
+                'email' => 'operator@example.com',
+                'role' => RoleName::OperatorLapangan,
+            ],
+            [
+                'name' => 'Verifikator',
+                'email' => 'verifikator@example.com',
+                'role' => RoleName::Verifikator,
+            ],
+            [
+                'name' => 'Pimpinan',
+                'email' => 'pimpinan@example.com',
+                'role' => RoleName::Pimpinan,
+            ],
+        ];
 
-        $admin->assignRole(RoleName::Administrator->value);
+        foreach ($users as $userData) {
+            $user = User::firstOrCreate(
+                ['email' => $userData['email']],
+                [
+                    'name' => $userData['name'],
+                    'password' => 'password',
+                ]
+            );
+
+            $user->assignRole($userData['role']->value);
+        }
     }
 }
