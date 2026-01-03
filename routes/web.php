@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\PermissionName;
+use App\Http\Controllers\Admin\CrisisTypeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -37,9 +38,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('permission:'.PermissionName::ViewAuditLog->value)
         ->name('audit-log.index');
 
-    Route::view('/admin/master-data', 'pages.admin.master-data')
+    Route::prefix('admin')
+        ->name('admin.')
         ->middleware('permission:'.PermissionName::ManageMasterData->value)
-        ->name('admin.master-data');
+        ->group(function () {
+            Route::view('/master-data', 'pages.admin.master-data')->name('master-data');
+            Route::resource('crisis-types', CrisisTypeController::class)->except(['show']);
+        });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
