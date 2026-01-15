@@ -1,7 +1,9 @@
 <?php
 
 use App\Enums\PermissionName;
+use App\Http\Controllers\CrisisReportController;
 use App\Http\Controllers\Admin\CrisisTypeController;
+use App\Http\Controllers\Admin\RegionController;
 use App\Http\Controllers\Admin\UrgencyLevelController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -15,13 +17,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('permission:'.PermissionName::ViewDashboard->value)
         ->name('dashboard');
 
-    Route::view('/reports', 'pages.reports.index')
+    Route::resource('reports', CrisisReportController::class)
+        ->only(['index', 'create', 'store', 'show'])
+        ->names('reports')
         ->middleware('permission:'.implode('|', [
             PermissionName::ViewReport->value,
             PermissionName::CreateReport->value,
             PermissionName::EditReport->value,
-        ]))
-        ->name('reports.index');
+        ]));
 
     Route::view('/verifications', 'pages.verifications.index')
         ->middleware('permission:'.PermissionName::VerifyReport->value)
@@ -46,6 +49,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::view('/master-data', 'pages.admin.master-data')->name('master-data');
             Route::resource('crisis-types', CrisisTypeController::class)->except(['show']);
             Route::resource('urgency-levels', UrgencyLevelController::class)->except(['show']);
+            Route::resource('regions', RegionController::class)->except(['show']);
         });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

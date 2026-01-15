@@ -2,8 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\CrisisReport;
 use App\Models\CrisisType;
+use App\Models\Region;
+use App\Models\UrgencyLevel;
+use App\Policies\CrisisReportPolicy;
 use App\Policies\CrisisTypePolicy;
+use App\Policies\RegionPolicy;
+use App\Policies\UrgencyLevelPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,6 +28,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Gate::policy(CrisisType::class, CrisisTypePolicy::class);
+        Gate::policies([
+            CrisisType::class => CrisisTypePolicy::class,
+            UrgencyLevel::class => UrgencyLevelPolicy::class,
+            Region::class => RegionPolicy::class,
+            CrisisReport::class => CrisisReportPolicy::class,
+        ]);
     }
 }
