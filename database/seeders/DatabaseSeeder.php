@@ -6,6 +6,7 @@ use App\Enums\RoleName;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -48,7 +49,7 @@ class DatabaseSeeder extends Seeder
                 ['email' => $userData['email']],
                 [
                     'name' => $userData['name'],
-                    'password' => 'password',
+                    'password' => Hash::make('password'),
                 ]
             );
 

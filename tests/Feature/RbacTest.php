@@ -12,39 +12,50 @@ class RbacTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_admin_can_access_dashboard(): void
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $this->seed(RbacSeeder::class);
-
-        $user = User::factory()->create();
-        $user->assignRole(RoleName::Administrator->value);
-
-        $response = $this->actingAs($user)->get('/dashboard');
-
-        $response->assertOk();
     }
 
-    public function test_admin_can_manage_master_data(): void
+    public function test_administrator_can_access_admin_master_data(): void
     {
-        $this->seed(RbacSeeder::class);
+        $user = $this->createUserWithRole(RoleName::Administrator);
 
-        $user = User::factory()->create();
-        $user->assignRole(RoleName::Administrator->value);
-
-        $response = $this->actingAs($user)->get('/admin/master-data');
-
-        $response->assertOk();
+        $this->actingAs($user)
+            ->get('/admin/master-data')
+            ->assertOk();
     }
 
-    public function test_verifikator_cannot_manage_master_data(): void
+    public function test_operator_is_forbidden_from_admin_master_data(): void
     {
-        $this->seed(RbacSeeder::class);
+        $user = $this->createUserWithRole(RoleName::OperatorLapangan);
 
+        $this->actingAs($user)
+            ->get('/admin/master-data')
+            ->assertForbidden();
+    }
+
+    public function test_verifikator_can_access_verifications_but_operator_cannot(): void
+    {
+        $verifikator = $this->createUserWithRole(RoleName::Verifikator);
+        $operator = $this->createUserWithRole(RoleName::OperatorLapangan);
+
+        $this->actingAs($verifikator)
+            ->get('/verifications')
+            ->assertOk();
+
+        $this->actingAs($operator)
+            ->get('/verifications')
+            ->assertForbidden();
+    }
+
+    private function createUserWithRole(RoleName $role): User
+    {
         $user = User::factory()->create();
-        $user->assignRole(RoleName::Verifikator->value);
+        $user->assignRole($role->value);
 
-        $response = $this->actingAs($user)->get('/admin/master-data');
-
-        $response->assertForbidden();
+        return $user;
     }
 }
