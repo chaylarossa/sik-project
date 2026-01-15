@@ -4,10 +4,11 @@ namespace Tests\Unit;
 
 use App\Models\CrisisReport;
 use App\Models\CrisisType;
+use App\Models\Region;
 use App\Models\UrgencyLevel;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 use Tests\TestCase;
 
 class CrisisReportModelTest extends TestCase
@@ -19,8 +20,7 @@ class CrisisReportModelTest extends TestCase
         $report = CrisisReport::factory()->create();
         $report->refresh();
 
-        $this->assertSame('pending', $report->verification_status);
-        $this->assertSame('new', $report->handling_status);
+        $this->assertSame(CrisisReport::STATUS_NEW, $report->status);
     }
 
     public function test_filter_scope_applies_filters(): void
@@ -29,23 +29,23 @@ class CrisisReportModelTest extends TestCase
         $typeB = CrisisType::factory()->create();
         $urgencyA = UrgencyLevel::factory()->create();
         $urgencyB = UrgencyLevel::factory()->create();
+        $regionA = Region::factory()->village()->create();
+        $regionB = Region::factory()->village()->create();
         $user = User::factory()->create();
 
         $matching = CrisisReport::factory()->create([
             'crisis_type_id' => $typeA->id,
             'urgency_level_id' => $urgencyA->id,
-            'region_id' => 101,
-            'handling_status' => 'new',
-            'verification_status' => 'pending',
+            'region_id' => $regionA->id,
+            'status' => CrisisReport::STATUS_NEW,
             'created_by' => $user->id,
         ]);
 
         CrisisReport::factory()->create([
             'crisis_type_id' => $typeB->id,
             'urgency_level_id' => $urgencyB->id,
-            'region_id' => 202,
-            'handling_status' => 'closed',
-            'verification_status' => 'verified',
+            'region_id' => $regionB->id,
+            'status' => CrisisReport::STATUS_CLOSED,
             'created_by' => $user->id,
         ]);
 
@@ -53,8 +53,8 @@ class CrisisReportModelTest extends TestCase
             ->filter([
                 'crisis_type_id' => $typeA->id,
                 'urgency_level_id' => $urgencyA->id,
-                'region_id' => 101,
-                'handling_status' => 'new',
+                'region_id' => $regionA->id,
+                'status' => CrisisReport::STATUS_NEW,
             ])
             ->get();
 

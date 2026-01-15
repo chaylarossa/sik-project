@@ -5,23 +5,39 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\CrisisType;
+use App\Models\UrgencyLevel;
+use App\Models\Region;
+use App\Models\User;
 
 class CrisisReport extends Model
 {
     use HasFactory;
 
+    public const STATUS_NEW = 'new';
+    public const STATUS_IN_PROGRESS = 'in_progress';
+    public const STATUS_DONE = 'done';
+    public const STATUS_CLOSED = 'closed';
+
+    public const STATUSES = [
+        self::STATUS_NEW,
+        self::STATUS_IN_PROGRESS,
+        self::STATUS_DONE,
+        self::STATUS_CLOSED,
+    ];
+
     protected $fillable = [
         'crisis_type_id',
         'urgency_level_id',
         'region_id',
+        'created_by',
+        'status',
         'occurred_at',
-        'description',
+        'address',
         'latitude',
         'longitude',
-        'address_text',
-        'created_by',
-        'verification_status',
-        'handling_status',
+        'description',
     ];
 
     protected $casts = [
@@ -33,31 +49,36 @@ class CrisisReport extends Model
     public function scopeFilter(Builder $query, array $filters): Builder
     {
         return $query
-            ->when($filters['crisis_type_id'] ?? null, function (Builder $query, $value) {
-                $query->where('crisis_type_id', $value);
-            })
-            ->when($filters['urgency_level_id'] ?? null, function (Builder $query, $value) {
-                $query->where('urgency_level_id', $value);
-            })
-            ->when($filters['region_id'] ?? null, function (Builder $query, $value) {
-                $query->where('region_id', $value);
-            })
-            ->when($filters['verification_status'] ?? null, function (Builder $query, $value) {
-                $query->where('verification_status', $value);
-            })
-            ->when($filters['handling_status'] ?? null, function (Builder $query, $value) {
-                $query->where('handling_status', $value);
-            })
-            ->when($filters['occurred_from'] ?? null, function (Builder $query, $value) {
-                $query->where('occurred_at', '>=', $value);
-            })
-            ->when($filters['occurred_to'] ?? null, function (Builder $query, $value) {
-                $query->where('occurred_at', '<=', $value);
-            });
+            ->when($filters['crisis_type_id'] ?? null, fn (Builder $q, $value) => $q->where('crisis_type_id', $value))
+            ->when($filters['urgency_level_id'] ?? null, fn (Builder $q, $value) => $q->where('urgency_level_id', $value))
+            ->when($filters['region_id'] ?? null, fn (Builder $q, $value) => $q->where('region_id', $value))
+            ->when($filters['status'] ?? null, fn (Builder $q, $value) => $q->where('status', $value))
+            ->when($filters['occurred_from'] ?? null, fn (Builder $q, $value) => $q->where('occurred_at', '>=', $value))
+            ->when($filters['occurred_to'] ?? null, fn (Builder $q, $value) => $q->where('occurred_at', '<=', $value));
     }
 
     public function scopeActive(Builder $query): Builder
     {
-        return $query->where('handling_status', '!=', 'closed');
+        return $query->where('status', '!=', self::STATUS_CLOSED);
+    }
+
+    public function crisisType(): BelongsTo
+    {
+        return $this->belongsTo(CrisisType::class);
+    }
+
+    public function urgencyLevel(): BelongsTo
+    {
+        return $this->belongsTo(UrgencyLevel::class);
+    }
+
+    public function region(): BelongsTo
+    {
+        return $this->belongsTo(Region::class);
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }
