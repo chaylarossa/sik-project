@@ -34,10 +34,26 @@ class CrisisReportPolicy
             || $user->can(PermissionName::EditReport->value);
     }
 
+    public function viewHandling(User $user, CrisisReport $crisisReport): bool
+    {
+        return $this->canManageHandling($user);
+    }
+
+    public function assign(User $user, CrisisReport $crisisReport): bool
+    {
+        return $this->canManageHandling($user);
+    }
+
     protected function canView(User $user): bool
     {
         return $user->hasRole(RoleName::Administrator->value)
             || $user->can(PermissionName::ViewReport->value)
             || $user->can(PermissionName::CreateReport->value);
+    }
+
+    protected function canManageHandling(User $user): bool
+    {
+        return $user->hasRole(RoleName::Administrator->value)
+            || $user->can(PermissionName::ManageHandling->value);
     }
 }

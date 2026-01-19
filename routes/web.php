@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CrisisTypeController;
 use App\Http\Controllers\Admin\RegionController;
 use App\Http\Controllers\Admin\UrgencyLevelController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\HandlingAssignmentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -25,6 +26,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
             PermissionName::CreateReport->value,
             PermissionName::EditReport->value,
         ]));
+
+    Route::get('/reports/{report}/assignments', [HandlingAssignmentController::class, 'index'])
+        ->name('reports.assignments.index')
+        ->middleware('permission:'.PermissionName::ManageHandling->value);
+
+    Route::post('/reports/{report}/assignments', [HandlingAssignmentController::class, 'store'])
+        ->name('reports.assignments.store')
+        ->middleware('permission:'.PermissionName::ManageHandling->value);
 
     Route::view('/verifications', 'pages.verifications.index')
         ->middleware('permission:'.PermissionName::VerifyReport->value)

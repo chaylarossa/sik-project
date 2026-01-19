@@ -15,6 +15,7 @@ return new class extends Migration
             $table->foreignId('region_id')->constrained()->cascadeOnDelete();
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->string('status')->default('new')->index();
+            $table->string('verification_status')->default('pending')->index();
             $table->timestamp('occurred_at')->index();
             $table->string('address');
             $table->decimal('latitude', 10, 7);
