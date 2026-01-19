@@ -2,6 +2,7 @@
 
 use App\Enums\PermissionName;
 use App\Http\Controllers\CrisisReportController;
+use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\Admin\CrisisTypeController;
 use App\Http\Controllers\Admin\RegionController;
 use App\Http\Controllers\Admin\UrgencyLevelController;
@@ -26,7 +27,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
             PermissionName::EditReport->value,
         ]));
 
-    Route::view('/verifications', 'pages.verifications.index')
+    Route::get('/reports/{report}/verify', [VerificationController::class, 'create'])
+        ->middleware('permission:'.PermissionName::VerifyReport->value)
+        ->name('reports.verify');
+
+    Route::post('/reports/{report}/verify', [VerificationController::class, 'store'])
+        ->middleware('permission:'.PermissionName::VerifyReport->value)
+        ->name('reports.verify.store');
+
+    Route::get('/verifications', [VerificationController::class, 'index'])
         ->middleware('permission:'.PermissionName::VerifyReport->value)
         ->name('verifications.index');
 

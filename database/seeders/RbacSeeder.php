@@ -40,6 +40,7 @@ class RbacSeeder extends Seeder
                 'role' => RoleName::Verifikator,
                 'permissions' => [
                     PermissionName::ViewReport,
+                    PermissionName::ViewDashboard,
                     PermissionName::VerifyReport,
                 ],
             ],

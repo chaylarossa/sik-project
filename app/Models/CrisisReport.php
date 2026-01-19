@@ -20,6 +20,10 @@ class CrisisReport extends Model
     public const STATUS_DONE = 'done';
     public const STATUS_CLOSED = 'closed';
 
+    public const VERIFICATION_PENDING = 'pending';
+    public const VERIFICATION_APPROVED = 'approved';
+    public const VERIFICATION_REJECTED = 'rejected';
+
     public const STATUSES = [
         self::STATUS_NEW,
         self::STATUS_IN_PROGRESS,
@@ -33,6 +37,7 @@ class CrisisReport extends Model
         'region_id',
         'created_by',
         'status',
+        'verification_status',
         'occurred_at',
         'address',
         'latitude',
@@ -80,5 +85,15 @@ class CrisisReport extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function verifications()
+    {
+        return $this->hasMany(Verification::class, 'crisis_report_id');
+    }
+
+    public function latestVerification()
+    {
+        return $this->hasOne(Verification::class, 'crisis_report_id')->latestOfMany();
     }
 }
