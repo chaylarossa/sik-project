@@ -23,9 +23,16 @@
     </x-slot>
 
     <div class="mb-4 flex items-center justify-between">
-        <a href="{{ route('reports.index') }}" class="inline-flex items-center rounded-md border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-            &larr; Kembali
-        </a>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('reports.index') }}" class="inline-flex items-center rounded-md border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                &larr; Kembali
+            </a>
+            @can('viewHandling', $report)
+                <a href="{{ route('reports.timeline', $report) }}" class="inline-flex items-center rounded-md bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-100">
+                    Timeline Penanganan
+                </a>
+            @endcan
+        </div>
         <span class="text-sm text-gray-500">Dibuat oleh {{ $report->creator->name }} pada {{ $report->created_at->format('d M Y, H:i') }}</span>
     </div>
 
@@ -73,4 +80,34 @@
             <p class="mt-2 whitespace-pre-line text-gray-800">{{ $report->description }}</p>
         </div>
     </div>
+
+    @can('viewHandling', $report)
+        <div class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+            <div class="flex items-center justify-between">
+                <h4 class="text-lg font-semibold text-gray-900">Timeline Penanganan (5 terbaru)</h4>
+                <a href="{{ route('reports.timeline', $report) }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-700">Lihat semua</a>
+            </div>
+
+            <div class="mt-4 space-y-4">
+                @forelse ($report->handlingUpdates as $update)
+                    <div class="flex items-start gap-3">
+                        <span class="mt-1 inline-flex h-2 w-2 rounded-full bg-indigo-500"></span>
+                        <div class="flex-1">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div class="text-sm font-semibold text-gray-900">{{ $statusLabels[$update->status] ?? $update->status }}</div>
+                                <div class="text-xs text-gray-500">{{ optional($update->occurred_at)->format('d M Y, H:i') }}</div>
+                            </div>
+                            <div class="mt-1 text-sm text-gray-700">Progres {{ $update->progress_percent }}%</div>
+                            @if ($update->note)
+                                <div class="mt-1 text-sm text-gray-600">{{ $update->note }}</div>
+                            @endif
+                            <div class="mt-1 text-xs text-gray-500">Oleh {{ $update->updatedBy->name ?? 'Tidak diketahui' }}</div>
+                        </div>
+                    </div>
+                @empty
+                    <p class="text-sm text-gray-500">Belum ada update progres.</p>
+                @endforelse
+            </div>
+        </div>
+    @endcan
 </x-app-layout>

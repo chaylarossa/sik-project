@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\HandlingUpdate;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -76,5 +77,10 @@ class CrisisReport extends Model
     public function handlingAssignments(): HasMany
     {
         return $this->hasMany(HandlingAssignment::class, 'report_id');
+    }
+
+    public function handlingUpdates(): HasMany
+    {
+        return $this->hasMany(HandlingUpdate::class, 'report_id');
     }
 }

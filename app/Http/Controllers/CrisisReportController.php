@@ -121,7 +121,18 @@ class CrisisReportController extends Controller
 
     public function show(CrisisReport $report): View
     {
-        $report->load(['crisisType', 'urgencyLevel', 'region.parent.parent.parent', 'creator']);
+        $report->load([
+            'crisisType',
+            'urgencyLevel',
+            'region.parent.parent.parent',
+            'creator',
+            'handlingUpdates' => function ($query) {
+                $query->with('updatedBy')
+                    ->orderByDesc('occurred_at')
+                    ->orderByDesc('id')
+                    ->limit(5);
+            },
+        ]);
 
         return view('crisis-reports.show', [
             'report' => $report,

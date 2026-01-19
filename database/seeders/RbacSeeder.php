@@ -33,6 +33,7 @@ class RbacSeeder extends Seeder
                     PermissionName::CreateReport,
                     PermissionName::ViewReport,
                     PermissionName::EditReport,
+                    PermissionName::VerifyReport,
                     PermissionName::ManageHandling,
                 ],
             ],
