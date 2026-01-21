@@ -14,14 +14,21 @@
 
     <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         @foreach ($navItems as $item)
-            @canany($item['permissions'])
+            @php
+                $roles = $item['roles'] ?? [];
+                $permissions = $item['permissions'] ?? [];
+                $user = auth()->user();
+                $canAccess = $user && ($user->canAny($permissions) || $user->hasAnyRole($roles));
+            @endphp
+
+            @if ($canAccess)
                 <x-nav-link :href="route($item['route'])" :active="request()->routeIs($item['active'] ?? $item['route'])">
                     <span class="text-gray-400">
                         {!! $item['icon'] !!}
                     </span>
                     <span class="truncate">{{ $item['label'] }}</span>
                 </x-nav-link>
-            @endcanany
+            @endif
         @endforeach
     </nav>
 </div>

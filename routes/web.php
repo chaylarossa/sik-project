@@ -1,15 +1,15 @@
 <?php
 
 use App\Enums\PermissionName;
+use App\Enums\RoleName;
 use App\Http\Controllers\CrisisReportController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ReportAssignmentController;
-use App\Http\Controllers\ReportTimelineController;
-use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\Admin\CrisisTypeController;
 use App\Http\Controllers\Admin\RegionController;
 use App\Http\Controllers\Admin\UrgencyLevelController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\HandlingAssignmentController;
+use App\Http\Controllers\HandlingUpdateController;
+use App\Http\Controllers\VerificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -17,8 +17,14 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', DashboardController::class)
-        ->middleware('permission:'.PermissionName::ViewDashboard->value)
+    Route::view('/dashboard', 'dashboard')
+        ->middleware('role_or_permission:'.implode('|', [
+            RoleName::Administrator->value,
+            RoleName::OperatorLapangan->value,
+            RoleName::Verifikator->value,
+            RoleName::Pimpinan->value,
+            PermissionName::ViewDashboard->value,
+        ]))
         ->name('dashboard');
 
     Route::resource('reports', CrisisReportController::class)
@@ -30,39 +36,54 @@ Route::middleware(['auth', 'verified'])->group(function () {
             PermissionName::EditReport->value,
         ]));
 
-    Route::get('reports/{report}/assignments', [ReportAssignmentController::class, 'index'])
+    Route::get('/reports/{report}/assignments', [HandlingAssignmentController::class, 'index'])
         ->name('reports.assignments.index')
         ->middleware('permission:'.PermissionName::ManageHandling->value);
 
-    Route::post('reports/{report}/assignments', [ReportAssignmentController::class, 'store'])
+    Route::post('/reports/{report}/assignments', [HandlingAssignmentController::class, 'store'])
         ->name('reports.assignments.store')
         ->middleware('permission:'.PermissionName::ManageHandling->value);
 
-    Route::get('reports/{report}/timeline', [ReportTimelineController::class, 'show'])
+    Route::get('/reports/{report}/timeline', [HandlingUpdateController::class, 'index'])
         ->name('reports.timeline')
-        ->middleware('permission:'.PermissionName::ViewReport->value);
+        ->middleware('permission:'.PermissionName::ManageHandling->value);
 
-    Route::post('reports/{report}/timeline', [ReportTimelineController::class, 'store'])
+    Route::post('/reports/{report}/handling-updates', [HandlingUpdateController::class, 'store'])
         ->name('reports.updates.store')
         ->middleware('permission:'.PermissionName::ManageHandling->value);
 
     Route::get('/verifications', [VerificationController::class, 'index'])
-        ->middleware('permission:'.PermissionName::VerifyReport->value)
+        ->middleware('role_or_permission:'.implode('|', [
+            RoleName::Administrator->value,
+            RoleName::OperatorLapangan->value,
+            RoleName::Verifikator->value,
+            PermissionName::VerifyReport->value,
+        ]))
         ->name('verifications.index');
 
     Route::post('/verifications/{report}/approve', [VerificationController::class, 'approve'])
-        ->middleware('permission:'.PermissionName::VerifyReport->value)
+        ->middleware('role_or_permission:'.implode('|', [
+            RoleName::Administrator->value,
+            RoleName::OperatorLapangan->value,
+            RoleName::Verifikator->value,
+            PermissionName::VerifyReport->value,
+        ]))
         ->name('verifications.approve');
 
     Route::post('/verifications/{report}/reject', [VerificationController::class, 'reject'])
-        ->middleware('permission:'.PermissionName::VerifyReport->value)
+        ->middleware('role_or_permission:'.implode('|', [
+            RoleName::Administrator->value,
+            RoleName::OperatorLapangan->value,
+            RoleName::Verifikator->value,
+            PermissionName::VerifyReport->value,
+        ]))
         ->name('verifications.reject');
 
     Route::view('/handling', 'pages.handling.index')
         ->middleware('permission:'.PermissionName::ManageHandling->value)
         ->name('handling.index');
 
-    Route::view('/archive', 'pages.archive.index')
+    Route::get('/archive', [App\Http\Controllers\ArchiveController::class, 'index'])
         ->middleware('permission:'.PermissionName::ExportData->value)
         ->name('archive.index');
 

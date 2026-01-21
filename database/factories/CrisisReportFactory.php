@@ -24,6 +24,7 @@ class CrisisReportFactory extends Factory
             'region_id' => Region::factory()->district()->create()->id,
             'created_by' => User::factory(),
             'status' => CrisisReport::STATUS_NEW,
+            'verification_status' => CrisisReport::VERIFICATION_PENDING,
             'occurred_at' => $this->faker->dateTimeBetween('-3 days', 'now'),
             'address' => $this->faker->streetAddress(),
             'latitude' => $this->faker->latitude(-7.5, -5.0),
@@ -35,5 +36,10 @@ class CrisisReportFactory extends Factory
     public function withStatus(string $status): self
     {
         return $this->state(fn () => ['status' => $status]);
+    }
+
+    public function withVerificationStatus(string $status): self
+    {
+        return $this->state(fn () => ['verification_status' => $status]);
     }
 }

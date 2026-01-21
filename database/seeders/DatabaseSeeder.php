@@ -51,6 +51,7 @@ class DatabaseSeeder extends Seeder
                 [
                     'name' => $userData['name'],
                     'password' => 'password',
+                    'email_verified_at' => now(),
                 ]
             );
 
