@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RbacSeeder::class,
             JavaRegionSeeder::class,
+            SampleDataSeeder::class,
         ]);
 
         $users = [

@@ -2,6 +2,10 @@
 
 use App\Enums\PermissionName;
 use App\Http\Controllers\CrisisReportController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReportAssignmentController;
+use App\Http\Controllers\ReportTimelineController;
+use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\Admin\CrisisTypeController;
 use App\Http\Controllers\Admin\RegionController;
 use App\Http\Controllers\Admin\UrgencyLevelController;
@@ -13,7 +17,7 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('/dashboard', 'dashboard')
+    Route::get('/dashboard', DashboardController::class)
         ->middleware('permission:'.PermissionName::ViewDashboard->value)
         ->name('dashboard');
 
@@ -26,9 +30,33 @@ Route::middleware(['auth', 'verified'])->group(function () {
             PermissionName::EditReport->value,
         ]));
 
-    Route::view('/verifications', 'pages.verifications.index')
+    Route::get('reports/{report}/assignments', [ReportAssignmentController::class, 'index'])
+        ->name('reports.assignments.index')
+        ->middleware('permission:'.PermissionName::ManageHandling->value);
+
+    Route::post('reports/{report}/assignments', [ReportAssignmentController::class, 'store'])
+        ->name('reports.assignments.store')
+        ->middleware('permission:'.PermissionName::ManageHandling->value);
+
+    Route::get('reports/{report}/timeline', [ReportTimelineController::class, 'show'])
+        ->name('reports.timeline')
+        ->middleware('permission:'.PermissionName::ViewReport->value);
+
+    Route::post('reports/{report}/timeline', [ReportTimelineController::class, 'store'])
+        ->name('reports.updates.store')
+        ->middleware('permission:'.PermissionName::ManageHandling->value);
+
+    Route::get('/verifications', [VerificationController::class, 'index'])
         ->middleware('permission:'.PermissionName::VerifyReport->value)
         ->name('verifications.index');
+
+    Route::post('/verifications/{report}/approve', [VerificationController::class, 'approve'])
+        ->middleware('permission:'.PermissionName::VerifyReport->value)
+        ->name('verifications.approve');
+
+    Route::post('/verifications/{report}/reject', [VerificationController::class, 'reject'])
+        ->middleware('permission:'.PermissionName::VerifyReport->value)
+        ->name('verifications.reject');
 
     Route::view('/handling', 'pages.handling.index')
         ->middleware('permission:'.PermissionName::ManageHandling->value)
