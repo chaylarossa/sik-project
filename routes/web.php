@@ -83,7 +83,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('permission:'.PermissionName::ManageHandling->value)
         ->name('handling.index');
 
-    Route::view('/archive', 'pages.archive.index')
+    Route::get('/archive', [App\Http\Controllers\ArchiveController::class, 'index'])
         ->middleware('permission:'.PermissionName::ExportData->value)
         ->name('archive.index');
 
