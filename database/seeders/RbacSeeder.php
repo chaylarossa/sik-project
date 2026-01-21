@@ -34,6 +34,7 @@ class RbacSeeder extends Seeder
                     PermissionName::ViewReport,
                     PermissionName::EditReport,
                     PermissionName::ManageHandling,
+                    PermissionName::ViewDashboard,
                 ],
             ],
             [
@@ -41,6 +42,7 @@ class RbacSeeder extends Seeder
                 'permissions' => [
                     PermissionName::ViewReport,
                     PermissionName::VerifyReport,
+                    PermissionName::ViewDashboard,
                 ],
             ],
             [
