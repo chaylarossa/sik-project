@@ -126,7 +126,18 @@
                         </div>
 
                         <div class="flex items-center gap-3">
-                            <span class="hidden text-sm text-gray-500 sm:inline">{{ auth()->user()->email }}</span>
+                            <!-- Notifications Bell -->
+                            <a href="{{ route('notifications.index') }}" class="relative p-2 text-gray-500 hover:bg-gray-100 rounded-md transition duration-150">
+                                <span class="sr-only">Notifikasi</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                                </svg>
+                                @if(auth()->user()->unreadNotifications->isNotEmpty())
+                                    <span class="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white"></span>
+                                @endif
+                            </a>
+                            
+                            <span class="hidden text-sm text-gray-500 sm:inline border-l border-gray-200 pl-3 ml-1">{{ auth()->user()->email }}</span>
 
                             <x-dropdown align="right" width="48">
                                 <x-slot name="trigger">

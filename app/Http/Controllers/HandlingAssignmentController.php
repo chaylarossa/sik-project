@@ -8,6 +8,7 @@ use App\Models\CrisisReport;
 use App\Models\HandlingAssignment;
 use App\Models\Unit;
 use App\Models\User;
+use App\Notifications\AssignmentNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -60,7 +61,9 @@ class HandlingAssignmentController extends Controller
                 ->where('status', HandlingAssignment::STATUS_ACTIVE)
                 ->exists();
 
-            HandlingAssignment::create($data);
+            $assignment = HandlingAssignment::create($data);
+
+            $assignment->assignee->notify(new AssignmentNotification($assignment));
 
             if (! $hasActiveAssignment
                 && $data['status'] === HandlingAssignment::STATUS_ACTIVE

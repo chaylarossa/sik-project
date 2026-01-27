@@ -3,6 +3,7 @@
 use App\Enums\PermissionName;
 use App\Enums\RoleName;
 use App\Http\Controllers\CrisisReportController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\CrisisTypeController;
 use App\Http\Controllers\Admin\RegionController;
 use App\Http\Controllers\Admin\UrgencyLevelController;
@@ -17,7 +18,13 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('/dashboard', 'dashboard')
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])
+        ->name('notifications.index');
+
+    Route::post('/notifications/read/{id?}', [App\Http\Controllers\NotificationController::class, 'markAsRead'])
+        ->name('notifications.mark-read');
+
+    Route::get('/dashboard', DashboardController::class)
         ->middleware('role_or_permission:'.implode('|', [
             RoleName::Administrator->value,
             RoleName::OperatorLapangan->value,
@@ -86,6 +93,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/archive', [App\Http\Controllers\ArchiveController::class, 'index'])
         ->middleware('permission:'.PermissionName::ExportData->value)
         ->name('archive.index');
+
+    Route::get('/archive/export/pdf', [App\Http\Controllers\ExportController::class, 'exportPdf'])
+        ->middleware('permission:'.PermissionName::ExportData->value)
+        ->name('archive.export.pdf');
 
     Route::view('/audit-log', 'pages.audit.index')
         ->middleware('permission:'.PermissionName::ViewAuditLog->value)

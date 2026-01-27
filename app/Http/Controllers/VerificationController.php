@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\RoleName;
 use App\Models\CrisisReport;
+use App\Notifications\VerificationResultNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -45,6 +46,8 @@ class VerificationController extends Controller
 
         $report->update(['verification_status' => CrisisReport::VERIFICATION_APPROVED]);
 
+        $report->creator->notify(new VerificationResultNotification($report));
+
         return back()->with('status', 'Laporan berhasil disetujui.');
     }
 
@@ -53,6 +56,8 @@ class VerificationController extends Controller
         $this->authorize('verify', $report);
 
         $report->update(['verification_status' => CrisisReport::VERIFICATION_REJECTED]);
+
+        $report->creator->notify(new VerificationResultNotification($report));
 
         return back()->with('status', 'Laporan ditolak.');
     }
