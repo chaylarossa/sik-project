@@ -3,6 +3,7 @@
 use App\Enums\PermissionName;
 use App\Http\Controllers\Admin\CrisisTypeController;
 use App\Http\Controllers\Admin\UrgencyLevelController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +35,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('/archive', 'pages.archive.index')
         ->middleware('permission:'.PermissionName::ExportData->value)
         ->name('archive.index');
+
+    Route::get('/archive/export/excel', [ExportController::class, 'archive'])
+        ->middleware('permission:'.PermissionName::ExportData->value)
+        ->name('archive.export.excel');
 
     Route::view('/audit-log', 'pages.audit.index')
         ->middleware('permission:'.PermissionName::ViewAuditLog->value)

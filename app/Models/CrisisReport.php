@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\HandlingUpdate;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -82,5 +83,16 @@ class CrisisReport extends Model
     public function handlingUpdates(): HasMany
     {
         return $this->hasMany(HandlingUpdate::class, 'report_id');
+    }
+
+    public function scopeFilter(Builder $query, array $filters): Builder
+    {
+        return $query
+            ->when($filters['crisis_type_id'] ?? null, fn (Builder $q, $value) => $q->where('crisis_type_id', $value))
+            ->when($filters['verification_status'] ?? null, fn (Builder $q, $value) => $q->where('verification_status', $value))
+            ->when($filters['status'] ?? null, fn (Builder $q, $value) => $q->where('status', $value))
+            ->when($filters['region_id'] ?? null, fn (Builder $q, $value) => $q->where('region_id', $value))
+            ->when($filters['period']['from'] ?? null, fn (Builder $q, $from) => $q->where('occurred_at', '>=', $from))
+            ->when($filters['period']['to'] ?? null, fn (Builder $q, $to) => $q->where('occurred_at', '<=', $to));
     }
 }
