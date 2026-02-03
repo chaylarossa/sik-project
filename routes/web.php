@@ -5,12 +5,9 @@ use App\Enums\RoleName;
 use App\Http\Controllers\CrisisReportController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\CrisisTypeController;
-use App\Http\Controllers\Admin\RegionController;
 use App\Http\Controllers\Admin\UrgencyLevelController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\HandlingAssignmentController;
-use App\Http\Controllers\HandlingUpdateController;
-use App\Http\Controllers\VerificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -34,69 +31,33 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ]))
         ->name('dashboard');
 
-    Route::resource('reports', CrisisReportController::class)
-        ->only(['index', 'create', 'store', 'show'])
-        ->names('reports')
+    Route::view('/reports', 'pages.reports.index')
         ->middleware('permission:'.implode('|', [
             PermissionName::ViewReport->value,
             PermissionName::CreateReport->value,
             PermissionName::EditReport->value,
-        ]));
-
-    Route::get('/reports/{report}/assignments', [HandlingAssignmentController::class, 'index'])
-        ->name('reports.assignments.index')
-        ->middleware('permission:'.PermissionName::ManageHandling->value);
-
-    Route::post('/reports/{report}/assignments', [HandlingAssignmentController::class, 'store'])
-        ->name('reports.assignments.store')
-        ->middleware('permission:'.PermissionName::ManageHandling->value);
-
-    Route::get('/reports/{report}/timeline', [HandlingUpdateController::class, 'index'])
-        ->name('reports.timeline')
-        ->middleware('permission:'.PermissionName::ManageHandling->value);
-
-    Route::post('/reports/{report}/handling-updates', [HandlingUpdateController::class, 'store'])
-        ->name('reports.updates.store')
-        ->middleware('permission:'.PermissionName::ManageHandling->value);
-
-    Route::get('/verifications', [VerificationController::class, 'index'])
-        ->middleware('role_or_permission:'.implode('|', [
-            RoleName::Administrator->value,
-            RoleName::OperatorLapangan->value,
-            RoleName::Verifikator->value,
-            PermissionName::VerifyReport->value,
         ]))
+        ->name('reports.index');
+
+    Route::view('/verifications', 'pages.verifications.index')
+        ->middleware('permission:'.PermissionName::VerifyReport->value)
         ->name('verifications.index');
-
-    Route::post('/verifications/{report}/approve', [VerificationController::class, 'approve'])
-        ->middleware('role_or_permission:'.implode('|', [
-            RoleName::Administrator->value,
-            RoleName::OperatorLapangan->value,
-            RoleName::Verifikator->value,
-            PermissionName::VerifyReport->value,
-        ]))
-        ->name('verifications.approve');
-
-    Route::post('/verifications/{report}/reject', [VerificationController::class, 'reject'])
-        ->middleware('role_or_permission:'.implode('|', [
-            RoleName::Administrator->value,
-            RoleName::OperatorLapangan->value,
-            RoleName::Verifikator->value,
-            PermissionName::VerifyReport->value,
-        ]))
-        ->name('verifications.reject');
 
     Route::view('/handling', 'pages.handling.index')
         ->middleware('permission:'.PermissionName::ManageHandling->value)
         ->name('handling.index');
 
-    Route::get('/archive', [App\Http\Controllers\ArchiveController::class, 'index'])
+    Route::view('/archive', 'pages.archive.index')
         ->middleware('permission:'.PermissionName::ExportData->value)
         ->name('archive.index');
 
-    Route::get('/archive/export/pdf', [App\Http\Controllers\ExportController::class, 'exportPdf'])
+    Route::get('/archive/export/pdf', [ExportController::class, 'exportPdf'])
         ->middleware('permission:'.PermissionName::ExportData->value)
         ->name('archive.export.pdf');
+
+    Route::get('/archive/export/excel', [ExportController::class, 'archive'])
+        ->middleware('permission:'.PermissionName::ExportData->value)
+        ->name('archive.export.excel');
 
     Route::view('/audit-log', 'pages.audit.index')
         ->middleware('permission:'.PermissionName::ViewAuditLog->value)
@@ -109,7 +70,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::view('/master-data', 'pages.admin.master-data')->name('master-data');
             Route::resource('crisis-types', CrisisTypeController::class)->except(['show']);
             Route::resource('urgency-levels', UrgencyLevelController::class)->except(['show']);
-            Route::resource('regions', RegionController::class)->except(['show']);
         });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
