@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Unit extends Model
@@ -12,6 +13,7 @@ class Unit extends Model
 
     protected $fillable = [
         'name',
+        'description',
         'is_active',
     ];
 
@@ -22,5 +24,12 @@ class Unit extends Model
     public function handlingAssignments(): HasMany
     {
         return $this->hasMany(HandlingAssignment::class);
+    }
+
+    public function crisisReports(): BelongsToMany
+    {
+        return $this->belongsToMany(CrisisReport::class, 'crisis_report_unit')
+            ->withPivot(['assigned_by', 'assigned_at', 'note'])
+            ->withTimestamps();
     }
 }

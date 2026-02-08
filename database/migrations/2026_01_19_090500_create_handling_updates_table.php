@@ -8,6 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (!Schema::hasTable('handling_updates')) {
         Schema::create('handling_updates', function (Blueprint $table) {
             $table->id();
             $table->foreignId('report_id')->constrained('crisis_reports')->cascadeOnDelete();
@@ -20,6 +21,7 @@ return new class extends Migration
 
             $table->index(['report_id', 'status']);
         });
+        }
     }
 
     public function down(): void

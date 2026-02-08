@@ -37,8 +37,28 @@ class StoreHandlingUpdateRequest extends FormRequest
                 return;
             }
 
+            $user = $this->user();
+            $isAdmin = $user?->hasRole(RoleName::Administrator->value) ?? false;
+            $isPimpinan = $user?->hasRole(RoleName::Pimpinan->value) ?? false;
+
+            // Rule: Progress update hanya jika status != DITUTUP (kecuali Admin)
+            if ($report->status === CrisisReport::STATUS_CLOSED && ! $isAdmin) {
+                $validator->errors()->add('base', 'Laporan sudah DITUTUP dan tidak dapat diperbarui.');
+                return;
+            }
+
             $newStatus = $this->input('status');
-            $isAdmin = $this->user()?->hasRole(RoleName::Administrator->value) ?? false;
+            $progressPercent = (int) $this->input('progress_percent');
+
+            // Rule: Status SELESAI hanya jika progress = 100
+            if ($newStatus === CrisisReport::STATUS_DONE && $progressPercent !== 100) {
+                $validator->errors()->add('progress_percent', 'Status SELESAI hanya bisa dipilih jika progres mencapai 100%.');
+            }
+
+            // Rule: Status DITUTUP hanya role Admin/Koordinator (Pimpinan)
+            if ($newStatus === CrisisReport::STATUS_CLOSED && ! $isAdmin && ! $isPimpinan) {
+                $validator->errors()->add('status', 'Status DITUTUP hanya dapat diubah oleh Administrator atau Pimpinan.');
+            }
 
             if (! $newStatus || $isAdmin) {
                 return;

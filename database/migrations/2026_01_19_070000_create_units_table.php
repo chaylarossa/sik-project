@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('units', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->unique();
+            $table->text('description')->nullable();
             $table->boolean('is_active')->default(true)->index();
             $table->timestamps();
         });

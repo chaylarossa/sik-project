@@ -48,6 +48,16 @@ class VerificationController extends Controller
 
         $report->creator->notify(new VerificationResultNotification($report));
 
+        activity()
+            ->performedOn($report)
+            ->causedBy(auth()->user()) // Helper auth() or request()->user()
+            ->withProperties([
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ])
+            ->event('verified')
+            ->log('Menyetujui laporan krisis');
+
         return back()->with('status', 'Laporan berhasil disetujui.');
     }
 
@@ -58,6 +68,16 @@ class VerificationController extends Controller
         $report->update(['verification_status' => CrisisReport::VERIFICATION_REJECTED]);
 
         $report->creator->notify(new VerificationResultNotification($report));
+
+        activity()
+            ->performedOn($report)
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ])
+            ->event('verified')
+            ->log('Menolak laporan krisis');
 
         return back()->with('status', 'Laporan ditolak.');
     }

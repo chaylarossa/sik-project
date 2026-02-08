@@ -75,25 +75,24 @@ class NotificationsTest extends TestCase
         $assigner = User::factory()->create();
         $assigner->givePermissionTo(PermissionName::ManageHandling);
         
-        $assignee = User::factory()->create();
-        // Ensure assignee is valid
-        
+        $reporter = User::factory()->create();
+
         $report = CrisisReport::factory()->create([
             'verification_status' => CrisisReport::VERIFICATION_APPROVED,
+            'created_by' => $reporter->id,
         ]);
         
         $unit = Unit::factory()->create();
 
         $response = $this->actingAs($assigner)
-            ->post(route('reports.assignments.store', $report), [
-                'unit_id' => $unit->id,
-                'assignee_id' => $assignee->id,
+            ->post(route('handling.assign'), [
+                'crisis_report_id' => $report->id,
+                'unit_ids' => [$unit->id],
                 'note' => 'Please handle asap',
-                'status' => 'active',
             ]);
 
         Notification::assertSentTo(
-            [$assignee],
+            [$reporter],
             AssignmentNotification::class
         );
     }
@@ -106,5 +105,46 @@ class NotificationsTest extends TestCase
             ->get(route('notifications.index'))
             ->assertStatus(200)
             ->assertViewIs('notifications.index');
+    }
+
+    public function test_admins_receive_notification_on_high_priority_report()
+    {
+        Notification::fake();
+
+        // Setup Permissions/Roles
+        $roleAdmin = \Spatie\Permission\Models\Role::firstOrCreate(['name' => \App\Enums\RoleName::Administrator->value, 'guard_name' => 'web']);
+        $permCreate = \Spatie\Permission\Models\Permission::firstOrCreate(['name' => \App\Enums\PermissionName::CreateReport->value, 'guard_name' => 'web']);
+        
+        $admin = User::factory()->create();
+        $admin->assignRole(\App\Enums\RoleName::Administrator->value);
+
+        $reporter = User::factory()->create();
+        $reporter->givePermissionTo(\App\Enums\PermissionName::CreateReport->value);
+
+        $urgency = \App\Models\UrgencyLevel::factory()->create(['is_high_priority' => true]);
+        $crisisType = \App\Models\CrisisType::factory()->create(['is_active' => true]);
+        
+        // Region Level Village
+        $region = \App\Models\Region::factory()->create(['level' => \App\Models\Region::LEVEL_VILLAGE]); 
+
+        $data = [
+           'crisis_type_id' => $crisisType->id,
+           'urgency_level_id' => $urgency->id,
+           'region_id' => $region->id,
+           'description' => 'Huge Fire!',
+           'occurred_at' => now()->toDateTimeString(),
+           'latitude' => -6.2,
+           'longitude' => 106.8,
+           'address' => 'Test Address',
+        ];
+
+        $this->actingAs($reporter)
+            ->post(route('reports.store'), $data)
+            ->assertRedirect();
+
+        Notification::assertSentTo(
+            [$admin],
+            \App\Notifications\CrisisHighPriorityNotification::class
+        );
     }
 }

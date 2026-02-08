@@ -8,20 +8,18 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class AssignmentNotification extends Notification implements ShouldQueue
+class CrisisHighPriorityNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
     protected CrisisReport $report;
-    protected string $unitNames;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(CrisisReport $report, string $unitNames)
+    public function __construct(CrisisReport $report)
     {
         $this->report = $report;
-        $this->unitNames = $unitNames;
     }
 
     /**
@@ -46,11 +44,14 @@ class AssignmentNotification extends Notification implements ShouldQueue
         $url = route('reports.show', $this->report->id);
 
         return (new MailMessage)
-            ->subject("Update Penugasan: Laporan #{$this->report->id}")
-            ->line("Laporan krisis Anda telah ditugaskan ke tim unit: {$this->unitNames}.")
-            ->line("Detail Laporan: {$this->report->description}")
-            ->action('Lihat Progress', $url)
-            ->line('Tim akan segera menuju lokasi.');
+            ->error()
+            ->subject("URGENT: Laporan Krisis Baru High Priority #{$this->report->id}")
+            ->line("PERHATIAN: Laporan krisis dengan urgensi TINGGI baru saja masuk.")
+            ->line("Deskripsi: {$this->report->description}")
+            ->line("Kategori: {$this->report->crisisType->name}")
+            ->line("Lokasi: {$this->report->region->name}")
+            ->action('Segera Tinjau', $url)
+            ->line('Mohon segera lakukan verifikasi dan penanganan!');
     }
 
     /**
@@ -62,10 +63,10 @@ class AssignmentNotification extends Notification implements ShouldQueue
     {
         return [
             'report_id' => $this->report->id,
-            'title' => 'Tim Ditugaskan',
-            'message' => "Unit {$this->unitNames} telah dikerahkan untuk laporan #{$this->report->id}.",
+            'title' => 'ALERT: HIGH PRIORITY CRISIS',
+            'message' => "Laporan #{$this->report->id} (Urgency: {$this->report->urgencyLevel->name}) membutuhkan respons segera.",
             'url' => route('reports.show', $this->report->id),
-            'type' => 'assignment',
+            'type' => 'high_priority',
         ];
     }
 }

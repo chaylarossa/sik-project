@@ -114,6 +114,20 @@ class CrisisReportController extends Controller
 
         $report = CrisisReport::create($data);
 
+        // Trigger High Priority Alert via Service
+        $report->load(['urgencyLevel', 'crisisType', 'region']);
+        app(\App\Services\CrisisAlertService::class)->sendHighPriorityAlert($report);
+
+        activity()
+            ->performedOn($report)
+            ->causedBy($request->user())
+            ->withProperties([
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ])
+            ->event('created')
+            ->log('Membuat laporan krisis baru');
+
         return redirect()
             ->route('reports.show', $report)
             ->with('status', 'Laporan krisis berhasil dibuat.');

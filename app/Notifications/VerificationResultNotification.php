@@ -42,7 +42,7 @@ class VerificationResultNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $status = ucfirst($this->report->verification_status);
-        $url = route('crisis-reports.show', $this->report);
+        $url = route('reports.show', $this->report);
 
         return (new MailMessage)
             ->subject("Laporan Krisis #{$this->report->id} Telah {$status}")
@@ -62,7 +62,7 @@ class VerificationResultNotification extends Notification implements ShouldQueue
             'report_id' => $this->report->id,
             'title' => 'Hasil Verifikasi Laporan',
             'message' => "Laporan #{$this->report->id} telah {$this->report->verification_status}.",
-            'url' => route('crisis-reports.show', $this->report),
+            'url' => route('reports.show', $this->report),
             'type' => 'verification_result',
         ];
     }

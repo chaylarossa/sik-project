@@ -65,6 +65,16 @@ class ExportController extends Controller
         $pdf = Pdf::loadView('exports.archive-pdf', $data);
         $pdf->setPaper('a4', 'landscape');
 
+        activity()
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'filters' => $validated,
+            ])
+            ->event('exported')
+            ->log('Mengunduh laporan krisis (PDF)');
+
         return $pdf->download('archive-reports-' . now()->format('Y-m-d-H-i-s') . '.pdf');
     }
 
@@ -85,6 +95,16 @@ class ExportController extends Controller
             ->filter($filters)
             ->orderBy('occurred_at', 'desc')
             ->get();
+
+        activity()
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'filters' => $filters,
+            ])
+            ->event('exported')
+            ->log('Mengunduh arsip laporan (Excel)');
 
         return Excel::download(new CrisisArchiveExport($reports), 'arsip-laporan.xlsx');
     }

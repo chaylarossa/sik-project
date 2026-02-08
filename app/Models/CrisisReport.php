@@ -7,11 +7,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CrisisReport extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     public const STATUS_NEW = 'new';
     public const STATUS_IN_PROGRESS = 'in_progress';
@@ -83,6 +86,23 @@ class CrisisReport extends Model
     public function handlingUpdates(): HasMany
     {
         return $this->hasMany(HandlingUpdate::class, 'report_id');
+    }
+
+    public function handling(): HasOne
+    {
+        return $this->hasOne(CrisisHandling::class);
+    }
+
+    public function units(): BelongsToMany
+    {
+        return $this->belongsToMany(Unit::class, 'crisis_report_unit')
+            ->withPivot(['assigned_by', 'assigned_at', 'note'])
+            ->withTimestamps();
+    }
+
+    public function getHandlingStatusAttribute(): string
+    {
+        return $this->handling?->status ?? CrisisHandling::STATUS_BARU;
     }
 
     public function scopeFilter(Builder $query, array $filters): Builder

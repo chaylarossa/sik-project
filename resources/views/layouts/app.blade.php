@@ -13,6 +13,121 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
+        <style>
+            /* === Minimal CSS Framework (Fallback/Utility) === */
+            
+            /* 1. Reset & Base */
+            *, *::before, *::after { box-sizing: border-box; }
+            /* Note: Body font is handled by Tailwind classes usually, but here's a fallback */
+            
+            /* 2. Components: Card */
+            .card { 
+                background-color: white; 
+                border-radius: 0.75rem; 
+                border: 1px solid #f3f4f6; 
+                box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); 
+                overflow: hidden; 
+            }
+
+            /* 3. Components: Buttons */
+            .btn { 
+                display: inline-flex; 
+                align-items: center; 
+                justify-content: center; 
+                padding: 0.5rem 1rem; 
+                border-radius: 0.5rem; 
+                font-size: 0.875rem; 
+                font-weight: 600; 
+                text-transform: uppercase; 
+                letter-spacing: 0.025em; 
+                transition: all 150ms; 
+                cursor: pointer; 
+                border: 1px solid transparent;
+            }
+            .btn-primary { background-color: #4f46e5; color: white; } 
+            .btn-primary:hover { background-color: #4338ca; }
+            .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+            
+            .btn-danger { background-color: #ef4444; color: white; } 
+            .btn-danger:hover { background-color: #dc2626; }
+            
+            .btn-secondary { background-color: white; border: 1px solid #d1d5db; color: #374151; } 
+            .btn-secondary:hover { background-color: #f9fafb; color: #111827; }
+
+            /* 4. Components: Badge */
+            .badge { 
+                display: inline-flex; 
+                align-items: center; 
+                padding: 0.125rem 0.625rem; 
+                border-radius: 9999px; 
+                font-size: 0.75rem; 
+                font-weight: 700; 
+                text-transform: uppercase;
+            }
+            .badge-baru { background-color: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
+            .badge-proses { background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+            .badge-selesai { background-color: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+            .badge-ditutup { background-color: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+
+            /* 5. Components: Tabs */
+            .tabs { display: flex; border-bottom: 2px solid #f3f4f6; gap: 1.5rem; margin-bottom: 1.5rem; }
+            .tab-link { 
+                padding: 1rem 0.25rem; 
+                font-size: 0.875rem; 
+                font-weight: 500; 
+                color: #6b7280; 
+                border-bottom: 2px solid transparent; 
+                margin-bottom: -2px; 
+                text-decoration: none; 
+            }
+            .tab-link:hover { color: #374151; border-color: #d1d5db; }
+            .tab-active { color: #4f46e5; border-color: #4f46e5; }
+            
+            /* 6. Components: Timeline (Pure CSS version if needed) */
+            .timeline { position: relative; padding-left: 1rem; }
+            .timeline-item { position: relative; padding-bottom: 2rem; border-left: 2px solid #e5e7eb; padding-left: 2rem; }
+            .timeline-item:last-child { border-left-color: transparent; }
+            .timeline-icon { 
+                position: absolute; 
+                left: -0.6rem; 
+                top: 0; 
+                width: 1.25rem; 
+                height: 1.25rem; 
+                border-radius: 50%; 
+                background: white; 
+                border: 2px solid #e5e7eb; 
+                z-index: 10;
+            }
+
+            /* 7. Components: Alert */
+            .alert { padding: 1rem; border-radius: 0.5rem; border: 1px solid transparent; margin-bottom: 1rem; font-size: 0.875rem; }
+            .alert-success { background-color: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+            .alert-error { background-color: #fef2f2; color: #991b1b; border-color: #fecaca; }
+            .alert-info { background-color: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
+
+            /* 8. Responsive Grid Helpers (Simplified) */
+            .grid-stack-mobile { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+            @media (min-width: 1024px) {
+                .grid-stack-mobile { grid-template-columns: repeat(4, 1fr); }
+            }
+
+            /* 9. Forms */
+            .input, .form-input { 
+                display: block; 
+                width: 100%; 
+                border-radius: 0.5rem; 
+                border: 1px solid #d1d5db; 
+                padding: 0.5rem 0.75rem; 
+                box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); 
+                transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            }
+            .input:focus, .form-input:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+            
+            /* Animation Utility */
+            .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        </style>
+
         @php
             use App\Enums\PermissionName;
 
@@ -162,6 +277,52 @@
 
                 <main class="flex-1 p-4 md:p-6">
                     <div class="mx-auto max-w-6xl">
+                        <!-- Global Flash Messages -->
+                        @if(session('success') || session('error') || session('warning') || session('info') || $errors->any())
+                            <div class="mb-6 space-y-2" x-data="{ show: true }" x-show="show">
+                                @if(session('success'))
+                                    <div class="flex items-center justify-between rounded-lg border border-green-200 bg-green-50 p-4 text-green-700 shadow-sm">
+                                        <div class="flex items-center">
+                                            <svg class="mr-3 h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                            {{ session('success') }}
+                                        </div>
+                                        <button @click="show = false" class="text-green-500 hover:text-green-700"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                                    </div>
+                                @endif
+
+                                @if(session('error'))
+                                    <div class="flex items-center justify-between rounded-lg border border-red-200 bg-red-50 p-4 text-red-700 shadow-sm">
+                                        <div class="flex items-center">
+                                            <svg class="mr-3 h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                            {{ session('error') }}
+                                        </div>
+                                        <button @click="show = false" class="text-red-500 hover:text-red-700"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                                    </div>
+                                @endif
+
+                                @if($errors->any())
+                                    <div class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700 shadow-sm">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="font-semibold flex items-center">
+                                                <svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                                Terdapat kesalahan input:
+                                            </span>
+                                            <button @click="show = false" class="text-red-500 hover:text-red-700"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                                        </div>
+                                        <ul class="list-inside list-disc text-sm ml-7">
+                                            @foreach ($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+
                         {{ $slot }}
                     </div>
                 </main>
