@@ -115,4 +115,16 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Enable Email Notifications
+    |--------------------------------------------------------------------------
+    |
+    | This option controls whether the application should send email
+    | notifications in addition to database notifications.
+    |
+    */
+
+    'enable_notifications' => env('MAIL_ENABLE_NOTIFICATIONS', false),
+
 ];

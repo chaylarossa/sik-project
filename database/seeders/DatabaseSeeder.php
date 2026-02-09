@@ -20,6 +20,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RbacSeeder::class,
             JavaRegionSeeder::class,
+            UnitSeeder::class,
+            SampleDataSeeder::class,
         ]);
 
         $users = [
@@ -51,6 +53,7 @@ class DatabaseSeeder extends Seeder
                 [
                     'name' => $userData['name'],
                     'password' => Hash::make('password'),
+                    'email_verified_at' => now(),
                 ]
             );
 

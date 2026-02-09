@@ -6,14 +6,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\CrisisType;
-use App\Models\UrgencyLevel;
-use App\Models\Region;
-use App\Models\User;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CrisisReport extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     public const STATUS_NEW = 'new';
     public const STATUS_IN_PROGRESS = 'in_progress';
@@ -29,6 +29,12 @@ class CrisisReport extends Model
         self::STATUS_IN_PROGRESS,
         self::STATUS_DONE,
         self::STATUS_CLOSED,
+    ];
+
+    public const VERIFICATION_STATUSES = [
+        self::VERIFICATION_PENDING,
+        self::VERIFICATION_APPROVED,
+        self::VERIFICATION_REJECTED,
     ];
 
     protected $fillable = [
@@ -53,13 +59,17 @@ class CrisisReport extends Model
 
     public function scopeFilter(Builder $query, array $filters): Builder
     {
+        $from = $filters['occurred_from'] ?? ($filters['period']['from'] ?? null);
+        $to = $filters['occurred_to'] ?? ($filters['period']['to'] ?? null);
+
         return $query
             ->when($filters['crisis_type_id'] ?? null, fn (Builder $q, $value) => $q->where('crisis_type_id', $value))
             ->when($filters['urgency_level_id'] ?? null, fn (Builder $q, $value) => $q->where('urgency_level_id', $value))
+            ->when($filters['verification_status'] ?? null, fn (Builder $q, $value) => $q->where('verification_status', $value))
             ->when($filters['region_id'] ?? null, fn (Builder $q, $value) => $q->where('region_id', $value))
             ->when($filters['status'] ?? null, fn (Builder $q, $value) => $q->where('status', $value))
-            ->when($filters['occurred_from'] ?? null, fn (Builder $q, $value) => $q->where('occurred_at', '>=', $value))
-            ->when($filters['occurred_to'] ?? null, fn (Builder $q, $value) => $q->where('occurred_at', '<=', $value));
+            ->when($from, fn (Builder $q, $value) => $q->where('occurred_at', '>=', $value))
+            ->when($to, fn (Builder $q, $value) => $q->where('occurred_at', '<=', $value));
     }
 
     public function scopeActive(Builder $query): Builder
@@ -95,5 +105,33 @@ class CrisisReport extends Model
     public function latestVerification()
     {
         return $this->hasOne(Verification::class, 'crisis_report_id')->latestOfMany();
+    }
+
+    public function handlingAssignments(): HasMany
+    {
+        return $this->hasMany(HandlingAssignment::class, 'report_id');
+    }
+
+    public function handlingUpdates(): HasMany
+    {
+        return $this->hasMany(HandlingUpdate::class, 'report_id');
+    }
+
+    public function handling(): HasOne
+    {
+        return $this->hasOne(CrisisHandling::class);
+    }
+
+    public function units(): BelongsToMany
+    {
+        return $this->belongsToMany(Unit::class, 'crisis_report_unit')
+            ->withPivot(['assigned_by', 'assigned_at', 'note'])
+            ->withTimestamps();
+    }
+
+    public function getHandlingStatusAttribute(): string
+    {
+        return $this->handling?->status ?? CrisisHandling::STATUS_BARU;
+    }
     }
 }

@@ -10,7 +10,10 @@ use App\Policies\CrisisReportPolicy;
 use App\Policies\CrisisTypePolicy;
 use App\Policies\RegionPolicy;
 use App\Policies\UrgencyLevelPolicy;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -34,5 +37,13 @@ class AppServiceProvider extends ServiceProvider
             Region::class => RegionPolicy::class,
             CrisisReport::class => CrisisReportPolicy::class,
         ]);
+
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('internal', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
     }
 }
