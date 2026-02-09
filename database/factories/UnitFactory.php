@@ -16,6 +16,8 @@ class UnitFactory extends Factory
     {
         return [
             'name' => 'Unit '.$this->faker->unique()->word(),
+            'code' => strtoupper($this->faker->unique()->bothify('UNT-###')),
+            'contact_phone' => $this->faker->optional()->numerify('08##########'),
             'is_active' => true,
         ];
     }

@@ -162,6 +162,12 @@
                     'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-7 4h8m3-6a8 8 0 11-16 0 8 8 0 0116 0z" /></svg>',
                 ],
                 [
+                    'label' => 'Peta',
+                    'route' => 'maps.index',
+                    'permissions' => [PermissionName::ViewMaps->value],
+                    'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5-2V6l5 2 6-2 5 2v12l-5-2-6 2zM9 20V8m6 10V6" /></svg>',
+                ],
+                [
                     'label' => 'Master Data',
                     'route' => 'admin.master-data',
                     'permissions' => [PermissionName::ManageMasterData->value],

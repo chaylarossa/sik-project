@@ -13,6 +13,8 @@ class Unit extends Model
 
     protected $fillable = [
         'name',
+        'code',
+        'contact_phone',
         'description',
         'is_active',
     ];

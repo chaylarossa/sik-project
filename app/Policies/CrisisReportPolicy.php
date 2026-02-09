@@ -58,6 +58,16 @@ class CrisisReportPolicy
         ]) || $user->can(PermissionName::VerifyReport->value);
     }
 
+    public function uploadMedia(User $user, CrisisReport $crisisReport): bool
+    {
+        return $this->canManageMedia($user, $crisisReport);
+    }
+
+    public function deleteMedia(User $user, CrisisReport $crisisReport): bool
+    {
+        return $this->canManageMedia($user, $crisisReport);
+    }
+
     protected function canView(User $user): bool
     {
         return $user->hasRole(RoleName::Administrator->value)
@@ -69,5 +79,12 @@ class CrisisReportPolicy
     {
         return $user->hasRole(RoleName::Administrator->value)
             || $user->can(PermissionName::ManageHandling->value);
+    }
+
+    protected function canManageMedia(User $user, CrisisReport $crisisReport): bool
+    {
+        return $user->hasRole(RoleName::Administrator->value)
+            || $user->can(PermissionName::EditReport->value)
+            || $crisisReport->created_by === $user->id;
     }
 }

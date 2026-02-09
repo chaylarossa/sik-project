@@ -141,6 +141,7 @@ class CrisisReportController extends Controller
             'region.parent.parent.parent',
             'creator',
             'verifications.verifier',
+            'media',
             'handlingUpdates' => function ($query) {
                 $query->with('updatedBy')
                     ->orderByDesc('occurred_at')

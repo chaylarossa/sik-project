@@ -5,10 +5,12 @@ namespace App\Providers;
 use App\Models\CrisisReport;
 use App\Models\CrisisType;
 use App\Models\Region;
+use App\Models\Unit;
 use App\Models\UrgencyLevel;
 use App\Policies\CrisisReportPolicy;
 use App\Policies\CrisisTypePolicy;
 use App\Policies\RegionPolicy;
+use App\Policies\UnitPolicy;
 use App\Policies\UrgencyLevelPolicy;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -36,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
             UrgencyLevel::class => UrgencyLevelPolicy::class,
             Region::class => RegionPolicy::class,
             CrisisReport::class => CrisisReportPolicy::class,
+            Unit::class => UnitPolicy::class,
         ]);
 
         RateLimiter::for('api', function (Request $request) {

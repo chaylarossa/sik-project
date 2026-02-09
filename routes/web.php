@@ -4,8 +4,11 @@ use App\Enums\PermissionName;
 use App\Enums\RoleName;
 use App\Http\Controllers\CrisisReportController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\CrisisMediaController;
+use App\Http\Controllers\MapController;
 use App\Http\Controllers\Admin\CrisisTypeController;
 use App\Http\Controllers\Admin\UrgencyLevelController;
+use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\ProfileController;
@@ -34,6 +37,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('reports', CrisisReportController::class);
 
+    Route::post('/reports/{report}/media', [CrisisMediaController::class, 'store'])
+        ->name('reports.media.store');
+
+    Route::delete('/reports/{report}/media/{media}', [CrisisMediaController::class, 'destroy'])
+        ->name('reports.media.destroy');
+
     Route::get('/reports/{report}/verify', [VerificationController::class, 'create'])
         ->middleware('permission:'.PermissionName::VerifyReport->value)
         ->name('reports.verify');
@@ -58,6 +67,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/status', 'changeStatus')->name('status');
         });
 
+    Route::get('/maps', [MapController::class, 'index'])
+        ->middleware('permission:'.PermissionName::ViewMaps->value)
+        ->name('maps.index');
+
     Route::view('/archive', 'pages.archive.index')
         ->middleware('permission:'.PermissionName::ExportData->value)
         ->name('archive.index');
@@ -81,6 +94,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::view('/master-data', 'pages.admin.master-data')->name('master-data');
             Route::resource('crisis-types', CrisisTypeController::class)->except(['show']);
             Route::resource('urgency-levels', UrgencyLevelController::class)->except(['show']);
+            Route::resource('units', UnitController::class)->except(['show']);
         });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

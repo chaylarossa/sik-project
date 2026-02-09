@@ -11,6 +11,7 @@ enum PermissionName: string
     case VerifyReport = 'verify report';
     case ManageHandling = 'manage handling';
     case ViewDashboard = 'view dashboard';
+    case ViewMaps = 'view maps';
     case ExportData = 'export data';
     case ViewAuditLog = 'view audit log';
 }

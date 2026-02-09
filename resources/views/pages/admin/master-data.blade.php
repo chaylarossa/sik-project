@@ -32,6 +32,17 @@
                 </div>
                 <span class="text-indigo-600">&rarr;</span>
             </a>
+
+            <a
+                href="{{ route('admin.units.index') }}"
+                class="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 text-left transition hover:border-indigo-200 hover:bg-indigo-50"
+            >
+                <div>
+                    <div class="text-sm font-semibold text-gray-900">Unit/Instansi</div>
+                    <div class="text-xs text-gray-600">Kelola unit yang terlibat penanganan.</div>
+                </div>
+                <span class="text-indigo-600">&rarr;</span>
+            </a>
         </div>
     </div>
 </x-app-layout>

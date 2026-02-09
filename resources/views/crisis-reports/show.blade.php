@@ -1,5 +1,6 @@
 @php
     use App\Models\CrisisReport;
+    use Illuminate\Support\Facades\Storage;
 
     $statusLabels = [
         CrisisReport::STATUS_NEW => 'Baru',
@@ -161,4 +162,56 @@
             </div>
         </div>
     @endcan
+
+    <div class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <h4 class="text-lg font-semibold text-gray-900">Media Laporan</h4>
+            @can('uploadMedia', $report)
+                <form method="POST" action="{{ route('reports.media.store', $report) }}" enctype="multipart/form-data" class="flex flex-wrap items-center gap-2">
+                    @csrf
+                    <input
+                        type="file"
+                        name="files[]"
+                        multiple
+                        class="block w-full text-sm text-gray-600 file:mr-3 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100"
+                    >
+                    <button type="submit" class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
+                        Upload
+                    </button>
+                </form>
+            @endcan
+        </div>
+
+        @error('files')
+            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+        @enderror
+        @error('files.*')
+            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+        @enderror
+
+        <div class="mt-4 space-y-3">
+            @forelse ($report->media as $media)
+                <div class="flex flex-wrap items-center justify-between gap-3 rounded-md border border-gray-100 bg-gray-50 p-3">
+                    <div>
+                        <div class="text-sm font-medium text-gray-900">{{ $media->original_name }}</div>
+                        <div class="text-xs text-gray-500">{{ strtoupper($media->mime_type) }} • {{ number_format($media->size / 1024, 1) }} KB</div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <a href="{{ Storage::disk($media->disk)->url($media->path) }}" target="_blank" class="inline-flex items-center rounded-md border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50">
+                            Lihat
+                        </a>
+                        @can('deleteMedia', $report)
+                            <form method="POST" action="{{ route('reports.media.destroy', [$report, $media]) }}" onsubmit="return confirm('Hapus media ini?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="inline-flex items-center rounded-md bg-red-50 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-100">Hapus</button>
+                            </form>
+                        @endcan
+                    </div>
+                </div>
+            @empty
+                <p class="text-sm text-gray-500">Belum ada media.</p>
+            @endforelse
+        </div>
+    </div>
 </x-app-layout>

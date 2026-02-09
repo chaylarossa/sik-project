@@ -36,6 +36,7 @@ class RbacSeeder extends Seeder
                     PermissionName::VerifyReport,
                     PermissionName::ManageHandling,
                     PermissionName::ViewDashboard,
+                    PermissionName::ViewMaps,
                 ],
             ],
             [
@@ -45,6 +46,7 @@ class RbacSeeder extends Seeder
                     PermissionName::ViewDashboard,
                     PermissionName::VerifyReport,
                     PermissionName::ViewDashboard,
+                    PermissionName::ViewMaps,
                 ],
             ],
             [
@@ -52,6 +54,7 @@ class RbacSeeder extends Seeder
                 'permissions' => [
                     PermissionName::ViewReport,
                     PermissionName::ViewDashboard,
+                    PermissionName::ViewMaps,
                     PermissionName::ExportData,
                     PermissionName::ViewAuditLog,
                 ],

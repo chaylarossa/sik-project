@@ -97,6 +97,11 @@ class CrisisReport extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function media(): HasMany
+    {
+        return $this->hasMany(CrisisMedia::class);
+    }
+
     public function verifications()
     {
         return $this->hasMany(Verification::class, 'crisis_report_id');
@@ -132,6 +137,5 @@ class CrisisReport extends Model
     public function getHandlingStatusAttribute(): string
     {
         return $this->handling?->status ?? CrisisHandling::STATUS_BARU;
-    }
     }
 }

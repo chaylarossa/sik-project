@@ -8,12 +8,12 @@ Route::middleware(['auth:sanctum', 'throttle:internal'])
         Route::get('ping', fn () => response()->json(['message' => 'pong']));
 
         Route::prefix('maps')->group(function () {
-             Route::get('crisis-points', [App\Http\Controllers\Api\Internal\MapController::class, 'points'])
+               Route::get('crisis-points', App\Http\Controllers\Api\Internal\MapCrisisPointController::class)
                 ->name('api.internal.maps.points');
         });
 
         Route::prefix('dashboard')->group(function () {
-             Route::get('summary', [App\Http\Controllers\Api\Internal\DashboardController::class, 'summary'])
+               Route::get('summary', App\Http\Controllers\Api\Internal\DashboardSummaryController::class)
                 ->name('api.internal.dashboard.summary');
         });
     });
