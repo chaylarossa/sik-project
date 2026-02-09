@@ -50,19 +50,23 @@ class ArchiveController extends Controller
             $query->where('status', $request->status);
         }
 
-        $query->latest();
+        if ($request->filled('q')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('description', 'like', '%' . $request->q . '%')
+                  ->orWhere('address', 'like', '%' . $request->q . '%');
+            });
+        }
+
+        $query->latest('occurred_at');
 
         $reports = $query->paginate($request->input('per_page', 15))
             ->withQueryString();
 
-        $crisisTypes = CrisisType::all();
-        $urgencyLevels = UrgencyLevel::all();
-        // Assuming Region has many levels, we might want to just show top level or specific ones. 
-        // For simplicity let's load all or optimize later if needed. 
-        // Or maybe just fetch parent regions? Let's just fetch all for now or maybe limit if it's too big.
-        // Assuming manageable size for now.
-        $regions = Region::all(); 
+        $crisisTypes = CrisisType::orderBy('name')->get();
+        $urgencyLevels = UrgencyLevel::orderBy('level')->get();
+        // Hanya ambil region level provinsi (parent_id null) atau sesuaikan
+        $regions = Region::whereNull('parent_id')->orderBy('name')->get();
 
-        return view('archive.index', compact('reports', 'crisisTypes', 'urgencyLevels', 'regions'));
+        return view('pages.archive.index', compact('reports', 'crisisTypes', 'urgencyLevels', 'regions'));
     }
 }

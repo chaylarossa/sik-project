@@ -44,8 +44,7 @@
 </head>
 <body>
     <div class="header">
-        <h2>Laporan Arsip Krisis</h2>
-        <p>Sistem Informasi Krisis (SIK)</p>
+        {{-- Header dihapus sesuai request --}}
     </div>
 
     <div class="meta">

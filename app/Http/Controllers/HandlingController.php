@@ -188,7 +188,7 @@ class HandlingController extends Controller
                 ->withProperties([
                     'ip' => request()->ip(),
                     'user_agent' => request()->userAgent(),
-                    'progress' => $data['progress_percent'],
+                    'progress' => $data['progress'],
                 ])
                 ->event('progress_updated')
                 ->log('Memperbarui progress penanganan');

@@ -59,7 +59,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/status', 'changeStatus')->name('status');
         });
 
-    Route::view('/archive', 'pages.archive.index')
+    Route::get('/archive', [App\Http\Controllers\ArchiveController::class, 'index'])
         ->middleware('permission:'.PermissionName::ExportData->value)
         ->name('archive.index');
 
